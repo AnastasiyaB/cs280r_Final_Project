@@ -20,5 +20,5 @@ class FireModel:
 		return diffusion - heatAdvancedByWind + self.tempRise * (rateFuelComsumedByBurning - convectiveHeatLostAtmosphere)
 
 	def changeFuelSupply():
-		expTemp = np.exp(-self.propCoef/(self.fireLayerTemp - self.ambTemp))
+		expTemp = np.exp(-1 * self.propCoef/(self.fireLayerTemp - self.ambTemp))
 		return -1 * self.fuelDispearRate * self.fuelSupplyMass * expTemp
