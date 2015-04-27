@@ -2,7 +2,7 @@ import random
 
 ## class representation for each cell
 class Cell:
-    def __init__(self, x, y, time, veg_inten, wind_direc, wind_inten, fire_inten):
+    def __init__(self, x, y, time, veg_inten, wind_direc, wind_inten, fire_inten,firefighter, ff_info):
         self.x = x
         self.y = y
         self.time = time
@@ -10,6 +10,8 @@ class Cell:
         self.wind_direc = wind_direc # wind direction
         self.wind_inten = wind_inten # wind intensity
         self.fire_inten = fire_inten # if there is a fire in the cell, how intensly is it burning
+        self.firefighter = firefighter
+        self.ff_info = ff_info ## but will be class firefighter
         
 ## class representation for each firefighter
 class FireFighter:
@@ -20,6 +22,7 @@ class FireFighter:
         self.actList = range(8) # 0 = up left, ... 7 = left
 
     def bestAction(self):
+        actList = [(-1,0),(0,-1),(0,1),(1,0)]
         act = random.choice(actList)
         self.path.append(act)
         return act
@@ -30,9 +33,15 @@ class AreaSimulation:
         self.hood = ((-1,-1), (-1,0), (-1,1),
                 (0,-1),          (0, 1),
                 (1,-1),  (1,0),  (1,1))
+        
         self.L = L
         self.time = 0
-    
+        
+    def fight_fire(self,x,y,ff_info):
+        self.grid[(x,y)].firefighter = True
+        self.grid[(x,y)].ff_info = ff_info
+        return
+        
     ## rewrite this
     def initialize(self):
         for x in range(self.L):
@@ -44,7 +53,9 @@ class AreaSimulation:
                     veg_inten= random.random(),
                     wind_direc= "right", ### not using this for now
                     wind_inten= random.random(),
-                    fire_inten= 0.00    
+                    fire_inten= 0.00,
+                    firefighter = False,
+                    ff_info = None 
                 )
         ### now I'm going to "start" a fire in the upper left corner
         self.grid[(1,2)].fire_inten = .55
@@ -55,6 +66,7 @@ class AreaSimulation:
     
     def gnew(self):
         newgrid = {}
+        new_ff_coord = []
         self.time += 1
         # iterate through all the cells
         for x in range(self.L):
@@ -63,7 +75,30 @@ class AreaSimulation:
 #                     newgrid[(x,y)] = self.grid[(x,y)] ## need to update time
 #                     newgrid[(x,y)].time +=1
 #                     newgrid[(x,y)].fire_inten = 0
-                if self.grid[(x,y)].fire_inten > 0: # cell is burning
+                if self.grid[(x,y)].firefighter == True: ## there is a firefighter in that cell
+                    print "fire fighter coord", x,y
+                    newgrid[(x,y)] = Cell(
+                        x= x,
+                        y= y,
+                        time = self.time,
+                        veg_inten= self.grid[(x,y)].veg_inten, # vegetation preserved
+                        wind_direc= self.grid[(x,y)].wind_direc,
+                        wind_inten= self.grid[(x,y)].wind_inten,
+                        fire_inten= 0.0, # fire put out
+                        firefighter = False, ### since firefighter leaves the cell
+                        ff_info = None 
+                   )
+                    # append that we have traversed 
+                    self.grid[(x,y)].ff_info.path.append((x,y))
+                    ## pick where the fire firefighter will be in the next step
+#                     action = self.grid[(x,y)].ff_info.bestAction() ## somewhere here need to check if it's a legal action
+                    
+#                     # there should be a way to get this at the end
+#                     newgrid[(x+action[0], y+action[1])].firefighter = True
+#                     newgrid[(x+action[0], y+action[1])].ff_info = self.grid[(x,y)].ff_info
+                    new_ff_coord.append((x,y))
+                ## TO DO: indicate here which cell the firefigher will go to next
+                elif self.grid[(x,y)].fire_inten > 0: # cell is burning
                     new_fire_inten = min(self.grid[(x,y)].fire_inten *self.grid[(x,y)].veg_inten * 3,1) ### take into account vegetation
                     newgrid[(x,y)] = Cell(
                         x= x,
@@ -73,7 +108,9 @@ class AreaSimulation:
                         wind_direc= self.grid[(x,y)].wind_direc,
                         wind_inten= self.grid[(x,y)].wind_inten,
                         # some previous intensity and a combination of surrounding intensities 
-                        fire_inten= round(new_fire_inten,2)     
+                        fire_inten= round(new_fire_inten,2),
+                        firefighter = False,
+                        ff_info = None 
                    )
                 elif self.grid[(x,y)].fire_inten == 0: # cell is not burning but can catch (assuming cells don't randomly catch fire)
                     ## need to take into account the conditions of surrounding cells
@@ -89,8 +126,14 @@ class AreaSimulation:
                         veg_inten= self.grid[(x,y)].veg_inten, ## figure out a better way to decay
                         wind_direc= self.grid[(x,y)].wind_direc,
                         wind_inten= self.grid[(x,y)].wind_inten,
-                        fire_inten= round(new_fire_inten,2)     
+                        fire_inten= round(new_fire_inten,2),
+                        firefighter = False,
+                        ff_info = None 
                    )
+        for x,y in new_ff_coord:
+            action = self.grid[(x,y)].ff_info.bestAction() ## somewhere here need to check if it's a legal action
+            newgrid[(x+action[0], y+action[1])].firefighter = True
+            newgrid[(x+action[0], y+action[1])].ff_info = self.grid[(x,y)].ff_info
         self.grid = newgrid
         return newgrid
 
