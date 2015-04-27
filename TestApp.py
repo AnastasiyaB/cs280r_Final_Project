@@ -110,7 +110,7 @@ class FireApp(App):
         
         root = FireUI(orientation='vertical', size=(800, 1000))
         
-        self.model = FireModel(cols = self.cols, size_hint=(1, .8))
+        self.model = FireModel(cols = self.cols, size_hint=(.8, .8))
         self.updateCells()
 
         s = Slider(max = self.iters-1, step = 1, size_hint=(1, .15))
