@@ -20,6 +20,20 @@ class FireUI(BoxLayout):
 class FireModel(GridLayout):
     pass
 
+class FireFighters(GridLayout):
+    pass
+
+class Fighter(Widget):
+    def __init__(self, x, y, effectiveness, **kwargs):
+        # make sure we aren't overriding any important functionality
+        super(CustomLayout, self).__init__(**kwargs)
+        self.cols = cols
+        self.x = x
+        self.y = y
+        self.sz = sz
+        self.cellType = cellType
+        self.intensity = intensity    
+
 class CustomLayout(Widget):
     def __init__(self, cols, x, y, sz, cellType = "fuel", intensity = None, **kwargs):
         # make sure we aren't overriding any important functionality
