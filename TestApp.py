@@ -20,6 +20,20 @@ class FireUI(BoxLayout):
 class FireModel(GridLayout):
     pass
 
+class FireFighters(GridLayout):
+    pass
+
+class Fighter(Widget):
+    def __init__(self, x, y, effectiveness, **kwargs):
+        # make sure we aren't overriding any important functionality
+        super(CustomLayout, self).__init__(**kwargs)
+        self.cols = cols
+        self.x = x
+        self.y = y
+        self.sz = sz
+        self.cellType = cellType
+        self.intensity = intensity    
+
 class CustomLayout(Widget):
     def __init__(self, cols, x, y, sz, cellType = "fuel", intensity = None, **kwargs):
         # make sure we aren't overriding any important functionality
@@ -110,7 +124,7 @@ class FireApp(App):
         
         root = FireUI(orientation='vertical', size=(800, 1000))
         
-        self.model = FireModel(cols = self.cols, size_hint=(1, .8))
+        self.model = FireModel(cols = self.cols, size_hint=(.8, .8))
         self.updateCells()
 
         s = Slider(max = self.iters-1, step = 1, size_hint=(1, .15))
