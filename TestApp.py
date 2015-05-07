@@ -114,7 +114,6 @@ class FireApp(App):
         if self.inputs:
             for ipt in self.inputs["Fire"]:
                 sim.grid[(int(ipt[0].text), int(ipt[1].text))].fire_inten = float(ipt[2].text)
-                print int(ipt[0].text), int(ipt[1].text)
             for ipt in self.inputs["FF"]:
                 if int(ipt[2].text):
                     ff = firesim.FireFighter(int(ipt[0].text), int(ipt[1].text), sim, efficacy = int(ipt[2].text))
@@ -126,7 +125,7 @@ class FireApp(App):
             sim.grid[(3,2)].fire_inten = .5
             sim.grid[(2,1)].fire_inten = .6
             sim.num_fires = 2
-            print sim.best_ff_config(sim,3)
+            sim.best_ff_config(3)
             
         for i in range(self.iters):
             self.vals.append(sim.grid)

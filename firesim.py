@@ -169,7 +169,7 @@ class FireFighter:
     # use value/policy interation to figure out best action   
     def bestAction2(self, newgrid):
         reward_grid = self.calculate_rewards(newgrid)
-        print "reward grid", reward_grid
+        #print "reward grid", reward_grid
         my_grid = GridMDP(reward_grid, self.actList)
         values = value_iteration(my_grid)
         best_pol = best_policy(my_grid,values)
@@ -383,7 +383,8 @@ class AreaSimulation:
                                 
         best_placement = None
         best_time = float('inf')
-        possible_initial_placements = list(itertools.combinations(ff_placement_poss,number_ffs))
+        
+        possible_initial_placements = list(itertools.combinations(ff_placement_poss, number_ffs))
         for placement in possible_initial_placements:
             # place all the firefighters
             for pos in placement:
