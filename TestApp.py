@@ -121,9 +121,12 @@ class FireApp(App):
                     sim.fight_fire(ff)
         else:
             ### now I'm going to "start" a fire in the upper left corner
-            sim.grid[(3,2)].fire_inten = .55
-            sim.grid[(1,1)].fire_inten = .60
-            sim.grid[(2,1)].fire_inten = .31
+            ## start a fire
+            print "no inputs"
+            sim.grid[(3,2)].fire_inten = .5
+            sim.grid[(2,1)].fire_inten = .6
+            sim.num_fires = 2
+            print sim.best_ff_config(sim,3)
             
         for i in range(self.iters):
             self.vals.append(sim.grid)
@@ -192,4 +195,4 @@ class FireApp(App):
 
 
 if __name__ == '__main__':
-    FireApp(90, 900).run()
+    FireApp(30, 300).run()
