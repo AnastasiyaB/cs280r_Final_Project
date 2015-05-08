@@ -25,5 +25,12 @@ An example input is:
 
 
 ### To run the simulation with the visual tool:
+Simply run the TestApp.py file with a Kivy batch executor.
+
+Once inside the application, select your parameters from the rigth sidebar and click Generate.
+
+The process takes a while, especially if the selection is a large fire or an optimal configuration.
+
+Drag the slider to see the results!
 
 

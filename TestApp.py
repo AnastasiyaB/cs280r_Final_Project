@@ -10,6 +10,7 @@ from kivy.uix.gridlayout import GridLayout
 from kivy.uix.image import Image
 from kivy.uix.button import Button
 from kivy.uix.textinput import TextInput
+from kivy.uix.checkbox import CheckBox
 from kivy.graphics import *
 from kivy.clock import Clock
 from kivy.lang import Builder
@@ -113,42 +114,46 @@ class FireApp(App):
         sim = firesim.AreaSimulation(self.cols)
         sim.initialize()
         if self.inputs:
-            for ipt in self.inputs["Fire"]:
-                sim.grid[(int(ipt[0].text), int(ipt[1].text))].fire_inten = float(ipt[2].text)
-            for ipt in self.inputs["FF"]:
-                if int(ipt[2].text):
-                    ff = firesim.FireFighter(int(ipt[0].text), int(ipt[1].text), sim, efficacy = int(ipt[2].text))
-                    sim.fight_fire(ff)
-        else:
-            ### now I'm going to "start" a fire in the upper left corner
-            ## start a fire
-            # print "no inputs"
-            # sim.grid[(3,2)].fire_inten = .5
-            # sim.grid[(2,1)].fire_inten = .6
-            # sim.num_fires = 2
-            # best_config = sim.best_ff_config(3)
-            # print best_config
-            # for ff in best_config:
-            #     print ff
-            #     ff = firesim.FireFighter(ff[0], ff[1], sim, efficacy = 1)
-            #     sim.fight_fire(ff)
+            params = {'Size': 0, 'Shape': 0, 'FF': 0}
+            for i in range(len(self.inputs["Size"])):
+                ipt = self.inputs["Size"][i]
+                if ipt.active:
+                    params['Size'] = i
+            for i in range(len(self.inputs["Shape"])):
+                ipt = self.inputs["Shape"][i]
+                if ipt.active:
+                    params['Shape'] = i
+            for i in range(len(self.inputs["FF"])):
+                ipt = self.inputs["FF"][i]
+                if ipt.active:
+                    params['FF'] = i
 
             testSize = self.cols
-            totalNumFFs = 8
+            totalNumFFs = int(self.inputs['numFFs'].text)
             fires = []
-            ## Small
-            center = (5, 5)
-            smallRadius = 1
-            smallFireR = firetests.generateRoundFire(center, smallRadius)
-            name, center, radius, cells = ("Small Round Fire", center, smallRadius, smallFireR)
+            center = (testSize/2, testSize/2)
+            radius = params['Size'] + 1
+            if params['Shape'] == 0:
+                fire = firetests.generateRoundFire(center, radius)
+            elif params['Shape'] == 1:
+                fire = firetests.generateEllipseFire(center, radius*2, radius)
+            else:
+                fire = firetests.generateOddFire(center, radius)
+            cells = fire
             c = 0
             for x, y, inten in cells:
                 sim.grid[(x, y)].fire_inten = inten
                 c += 1
             sim.num_fires = c
-            ff_config = firetests.generateSurroundFFs(center, radius, numFFs = totalNumFFs)
+            if params['FF'] == 0:
+                ff_config = firetests.generatePointFFs(center, radius, numFFs = totalNumFFs)
+            elif params['FF'] == 1:
+                ff_config = firetests.generateSurroundFFs(center, radius, numFFs = totalNumFFs)
+            else:
+                ff_config = sim.best_ff_config(totalNumFFs)
+
             for ff in ff_config:
-                ff = firesim.FireFighter(ff[0], ff[1], sim, style = 'teamOptimal', efficacy = 1)
+                ff = firesim.FireFighter(ff[0], ff[1], sim, style = 'optimal', efficacy = 1)
                 sim.fight_fire(ff)
             
         for i in range(self.iters):
@@ -193,19 +198,38 @@ class FireApp(App):
         self.slider.bind(value = self.OnSliderValueChange)
 
         panel = InputPanel(size_hint=(.27, .8))
-        deflt = {"Fire": [(1, 2, .55), (1, 1, .6), (2, 1, .31)], "FF": [(3, 2, 1), (4, 5, 1), (5, 1, 1)]}
-        inputs = {'Fire': [], 'FF': []}
-        for t in ['Fire', 'FF']:
-            for i in range(1, 4):
-                panel.add_widget(Label(text = str(t) + " " + str(i) + ' Coords: x, y, int', size_hint=(1, .15)))
-                inpt = GridLayout(cols = 3, size_hint = (1, .15))
-                tup = ()
-                for j in range(3):
-                    txt = TextInput(text=str(deflt[t][i-1][j]), multiline = False)
-                    tup += (txt,)
-                    inpt.add_widget(txt)
-                panel.add_widget(inpt)
-                inputs[t].append(tup)
+        # deflt = {"Fire": [(1, 2, .55), (1, 1, .6), (2, 1, .31)], "FF": [(3, 2, 1), (4, 5, 1), (5, 1, 1)]}
+        # inputs = {'Fire': [], 'FF': []}
+        # for t in ['Fire', 'FF']:
+        #     for i in range(1, 4):
+        #         panel.add_widget(Label(text = str(t) + " " + str(i) + ' Coords: x, y, int', size_hint=(1, .15)))
+        #         inpt = GridLayout(cols = 3, size_hint = (1, .15))
+        #         tup = ()
+        #         for j in range(3):
+        #             txt = TextInput(text=str(deflt[t][i-1][j]), multiline = False)
+        #             tup += (txt,)
+        #             inpt.add_widget(txt)
+        #         panel.add_widget(inpt)
+        #         inputs[t].append(tup)
+        # self.inputs = inputs
+
+        deflt = {'Size': ['Small', 'Med', 'Large'], 'Shape': ['Round', 'Ellipse', 'Odd'], 'FF': ['Point', 'Surround', 'Optimal']}
+        inputs = {'Size': [], 'Shape': [], 'FF': [], 'numFFs': None}
+        panel.add_widget(Label(text = 'Num Firefighters', size_hint=(1, .15)))
+        inputs['numFFs'] = TextInput(text='8', multiline = False)
+        box = BoxLayout(size_hint=(1, .15))
+        box.add_widget(inputs['numFFs'])
+        panel.add_widget(box)
+        for t in ['Size', 'Shape', 'FF']:
+            panel.add_widget(Label(text = str(t), size_hint=(1, .15)))
+            inpt = GridLayout(cols = len(deflt[t]), size_hint = (1, .15))
+            for j in range(len(deflt[t])):
+                inpt.add_widget(Label(text = str(deflt[t][j]), size_hint=(1, .05)))
+            for j in range(len(deflt[t])):
+                rdio = CheckBox(group = t)
+                inpt.add_widget(rdio)
+                inputs[t].append(rdio)
+            panel.add_widget(inpt)
         self.inputs = inputs
         
         genBtn = Button(text="Generate!!", size_hint=(1, .15))
@@ -221,4 +245,4 @@ class FireApp(App):
 
 
 if __name__ == '__main__':
-    FireApp(10, 100).run()
+    FireApp(30, 300).run()

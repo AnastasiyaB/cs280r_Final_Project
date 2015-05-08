@@ -1,5 +1,3 @@
-import numpy as np
-import matplotlib.pyplot as plt
 import firesim
 
 # DEFINE FUNCTIONS
@@ -118,54 +116,54 @@ testSize = 10
 totalNumFFs = 8
 fires = []
 
-# Round fire
-center = (testSize/2, testSize/2)
+# # # Round fire
+# center = (testSize/2, testSize/2)
 
-## Small
-smallRadius = 1
-smallFireR = generateRoundFire(center, smallRadius)
-fires.append(("Small Round Fire", center, smallRadius, smallFireR))
+# ## Small
+# smallRadius = 1
+# smallFireR = generateRoundFire(center, smallRadius)
+# fires.append(("Small Round Fire", center, smallRadius, smallFireR))
 
-## Medium
-medRadius = 2
-medFireR = generateRoundFire(center, medRadius)
-fires.append(("Med Round Fire", center, medRadius, medFireR))
+# ## Medium
+# medRadius = 2
+# medFireR = generateRoundFire(center, medRadius)
+# fires.append(("Med Round Fire", center, medRadius, medFireR))
 
-## Large
-largeRadius = 3
-largeFireR = generateRoundFire(center, largeRadius)
-fires.append(("Med Round Fire", center, largeRadius, largeFireR))
+# ## Large
+# largeRadius = 3
+# largeFireR = generateRoundFire(center, largeRadius)
+# fires.append(("Med Round Fire", center, largeRadius, largeFireR))
 
-# Elliptical fire - right facing
-center = (testSize/2, testSize/2)
+# # Elliptical fire - right facing
+# center = (testSize/2, testSize/2)
 
-## Small
-smallRadius = 1
-smallFireE = generateEllipseFire(center, smallRadius*2, smallRadius)
-fires.append(("Small Ellipse Fire", center, smallRadius, smallFireE))
+# ## Small
+# smallRadius = 1
+# smallFireE = generateEllipseFire(center, smallRadius*2, smallRadius)
+# fires.append(("Small Ellipse Fire", center, smallRadius, smallFireE))
 
-## Medium
-medRadius = 2
-medFireE = generateEllipseFire(center, medRadius*2, medRadius)
-fires.append(("Med Ellipse Fire", center, medRadius, medFireE))
+# ## Medium
+# medRadius = 2
+# medFireE = generateEllipseFire(center, medRadius*2, medRadius)
+# fires.append(("Med Ellipse Fire", center, medRadius, medFireE))
 
-## Large
-largeRadius = 3
-largeFireE = generateEllipseFire(center, largeRadius*2, largeRadius)
-fires.append(("Large Ellipse Fire", center, largeRadius, largeFireE))
+# ## Large
+# largeRadius = 3
+# largeFireE = generateEllipseFire(center, largeRadius*2, largeRadius)
+# fires.append(("Large Ellipse Fire", center, largeRadius, largeFireE))
 
 # Odd-shaped fire
 center = (testSize/2, testSize/2)
 
-## Small
-smallRadius = 1
-smallFireO = generateRoundFire(center, smallRadius)
-fires.append(("Small Odd Fire", center, smallRadius, smallFireO))
+# ## Small
+# smallRadius = 1
+# smallFireO = generateRoundFire(center, smallRadius)
+# fires.append(("Small Odd Fire", center, smallRadius, smallFireO))
 
-## Medium
-medRadius = 3
-medFireO = generateRoundFire(center, medRadius)
-fires.append(("Med Odd Fire", center, medRadius, medFireO))
+# ## Medium
+# medRadius = 3
+# medFireO = generateRoundFire(center, medRadius)
+# fires.append(("Med Odd Fire", center, medRadius, medFireO))
 
 ## Large
 largeRadius = 3
@@ -174,147 +172,88 @@ fires.append(("Large Odd Fire", center, largeRadius, largeFireO))
 
 ###################################################################
 ## RUN TESTS
-# figIdx = 1
-# styles = ["Point Configuration - ", "Surround Configuration - ", "Optimal Configuration - "]
-# strats = ["random", "greedy"]
-# strats2 = ["random", "greedy", "optimal", "teamOptimal"]
-# for name, center, radius, cells in fires:
-# 	for configStyle in range(2): # 0 - point, 1 - surround, 2 - optimal
-# 		for strat in strats:
-# 			trials = 10
-# 			stepsToExtinguish = []
-
-# 			# Initialize figure
-# 			fig = plt.figure(figIdx)
-# 			fig.suptitle(styles[configStyle] + name + " (" + strat+ ")")
-# 			plt.xlabel('Iterations')
-# 			plt.ylabel('Turns to Extinguish')
-
-# 			# Run through trials, save outputs, and plot		
-# 			for tri in range(trials):
-# 				# Init
-# 				sim = firesim.AreaSimulation(testSize)
-# 				sim.initialize()
-
-# 				# Light the fire and count the num fires lit
-# 				c = 0
-# 				for x, y, inten in cells:
-# 					sim.grid[(x, y)].fire_inten = inten
-# 					c += 1
-# 				# sim.num_fires = c
-
-# 				if configStyle == 0:
-# 					ff_config = generatePointFFs(center, radius, point = 'top', numFFs = totalNumFFs)
-
-# 				elif configStyle == 1:
-# 					ff_config = generateSurroundFFs(center, radius, numFFs = totalNumFFs)
-
-# 				else:
-# 					ff_config = sim.best_ff_config(totalNumFFs)
-
-# 				for ff in ff_config:
-# 					ff2 = firesim.FireFighter(ff[0], ff[1], sim, style = strat, efficacy = 1)
-# 			    	sim.fight_fire(ff2)
-
-# 				# sim.gprint()
-# 			    # Run simulation
-# 				steps = 0
-# 				iters = 50
-
-# 				for itr in range(iters):
-# 					sim.gnew()
-# 					steps += 1
-# 					print sim.num_fires
-# 					if sim.num_fires == 0:
-# 						break
-# 				stepsToExtinguish.append(steps)
-# 				print "Done Trial with", steps, "steps"
-# 				# sim.gprint()	    	
-
-# 			print "Done. Plotting", styles[configStyle], name, strat
-# 			plt.plot(stepsToExtinguish)
-# 			fig.savefig(styles[configStyle] + name + strat + '.jpg')
-# 			figIdx += 1
-
-
-
 
 # Init
-figIdx = 1
-name, center, radius, cells = ("Small Round Fire", center, smallRadius, smallFireR)
-styles = ["Point Configuration - ", "Surround Configuration - ", "Optimal Configuration - "]
-strats = ["random", "greedy"]
-strats2 = ["random", "greedy", "optimal", "teamOptimal"]
-# print name, center, radius, cells
-# print "###"
-for name, center, radius, cells in fires:
-	for configStyle in range(2): # 0 - point, 1 - surround, 2 - optimal
-		avgs = []
-		for strat in strats2:
-			trials = 10
-			stepsToExtinguish = []
+def runTests():
+	import numpy as np
+	import matplotlib.pyplot as plt
+	figIdx = 1
+	# name, center, radius, cells = ("Small Round Fire", center, smallRadius, smallFireR)
+	styles = ["Point Configuration - ", "Surround Configuration - ", "Optimal Configuration - "]
+	strats = ["random", "greedy"]
+	strats2 = ["random", "greedy", "optimal", "teamOptimal"]
+	# print name, center, radius, cells
+	# print "###"
+	for name, center, radius, cells in fires:
+		for configStyle in range(2): # 0 - point, 1 - surround, 2 - optimal
+			avgs = []
+			for strat in strats2:
+				trials = 10
+				stepsToExtinguish = []
 
-			# Initialize figure
-			fig = plt.figure(figIdx)
+				# Initialize figure
+				fig = plt.figure(figIdx)
+				fig.suptitle(styles[configStyle] + name)
+				plt.xlabel('Iterations')
+				plt.ylabel('Turns to Extinguish')
+				print "Working on", styles[configStyle], name, strat
+				for t in range(trials):
+					sim = firesim.AreaSimulation(testSize)
+					sim.initialize()
+				
+					# Light the fire and count the num fires lit
+					c = 0
+					for x, y, inten in cells:
+						sim.grid[(x, y)].fire_inten = inten
+						c += 1
+					# sim.num_fires = c
+
+					if configStyle == 0:
+						ff_config = generatePointFFs(center, radius, point = 'top', numFFs = totalNumFFs)
+
+					elif configStyle == 1:
+						ff_config = generateSurroundFFs(center, radius, numFFs = totalNumFFs)
+
+					else:
+						ff_config = sim.best_ff_config(totalNumFFs)
+
+					for ff in ff_config:
+						ff2 = firesim.FireFighter(ff[0], ff[1], sim, style = strat, efficacy = 1)
+						sim.fight_fire(ff2)
+
+					# sim.gprint()
+					# Run simulation
+					steps = 0
+					iters = 50
+					for itr in range(iters):
+						sim.gnew()
+						steps += 1
+						#print sim.num_fires
+						if sim.num_fires == 0:
+							break
+					stepsToExtinguish.append(steps)
+					print "Done Trial with", steps, "steps"
+
+
+				print "Done. Plotting", styles[configStyle], name, strat
+				plt.plot(stepsToExtinguish, label = strat)
+				avgs.append(sum(stepsToExtinguish)/len(stepsToExtinguish))
+
+			plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.05),
+	          ncol=2, fancybox=True, shadow=True)
+			fig.savefig(styles[configStyle] + name + '.jpg')
+
+			fig = plt.figure(figIdx+1)
 			fig.suptitle(styles[configStyle] + name)
-			plt.xlabel('Iterations')
-			plt.ylabel('Turns to Extinguish')
-			print "Working on", styles[configStyle], name, strat
-			for t in range(trials):
-				sim = firesim.AreaSimulation(testSize)
-				sim.initialize()
+			plt.xlabel('Approach')
+			plt.ylabel('Average Steps to Extinguish')
+			ind = np.arange(4)
+			plt.bar(ind, avgs, width=.95, color='blue')
+			plt.ylim([0, max(avgs)+1])
+			plt.xticks(ind+.475, tuple(strats2))
+			fig.savefig(styles[configStyle] + name + ' Bar.jpg')
 			
-				# Light the fire and count the num fires lit
-				c = 0
-				for x, y, inten in cells:
-					sim.grid[(x, y)].fire_inten = inten
-					c += 1
-				# sim.num_fires = c
+			print "PLOT GENERATED!", styles[configStyle], name
+			figIdx += 2
 
-				if configStyle == 0:
-					ff_config = generatePointFFs(center, radius, point = 'top', numFFs = totalNumFFs)
-
-				elif configStyle == 1:
-					ff_config = generateSurroundFFs(center, radius, numFFs = totalNumFFs)
-
-				else:
-					ff_config = sim.best_ff_config(totalNumFFs)
-
-				for ff in ff_config:
-					ff2 = firesim.FireFighter(ff[0], ff[1], sim, style = strat, efficacy = 1)
-					sim.fight_fire(ff2)
-
-				# sim.gprint()
-				# Run simulation
-				steps = 0
-				iters = 50
-				for itr in range(iters):
-					sim.gnew()
-					steps += 1
-					#print sim.num_fires
-					if sim.num_fires == 0:
-						break
-				stepsToExtinguish.append(steps)
-				print "Done Trial with", steps, "steps"
-
-
-			print "Done. Plotting", styles[configStyle], name, strat
-			plt.plot(stepsToExtinguish, label = strat)
-			avgs.append(sum(stepsToExtinguish)/len(stepsToExtinguish))
-
-		plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.25),
-          ncol=2, fancybox=True, shadow=True)
-		fig.savefig(styles[configStyle] + name + '.jpg')
-
-		fig = plt.figure(figIdx+1)
-		fig.suptitle(styles[configStyle] + name)
-		plt.xlabel('Approach')
-		plt.ylabel('Average Steps to Extinguish')
-		ind = np.arange(4)
-		plt.bar(ind, avgs, width=.95, color='blue')
-		plt.ylim([0, max(avgs)+1])
-		plt.xticks(ind+.475, tuple(strats2))
-		fig.savefig(styles[configStyle] + name + ' Bar.jpg')
-		
-		print "PLOT GENERATED!", styles[configStyle], name
-		figIdx += 2
+# runTests()
