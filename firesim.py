@@ -65,7 +65,7 @@ class GridMDP(MDP):
         #grid.reverse() ## because we want row 0 on bottom, not on top
         L = len(grid)
         MDP.__init__(self, init, L, actlist=actions, gamma=gamma)
-        update(self, grid=grid, rows=len(grid), cols=len(grid[0]))
+        update(self, grid=grid, rows=L, cols=L)
         for x in range(self.cols):
             for y in range(self.rows):
                 self.reward[x, y] = grid[y][x]
@@ -87,7 +87,10 @@ def value_iteration(mdp, epsilon=0.001):
     while True:
         U = U1.copy()
         delta = 0
+     
+
         for s in mdp.states:
+
             U1[s] = R(s) + gamma * max([sum([p * U[s1] for (p, s1) in T(s, a)]) for a in mdp.actions(s)])
             delta = max(delta, abs(U1[s] - U[s]))
         if delta < epsilon * (1 - gamma) / gamma:
@@ -132,7 +135,8 @@ def policy_evaluation(pi, U, mdp, k=20):
   
 ## class representation for each firefighter
 class FireFighter:
-    def __init__(self, x, y, area, style = "random", efficacy = 1):
+    # adjust style to optimal instead of random
+    def __init__(self, x, y, area, style = "optimal", efficacy = 1):
         self.x = x # The starting cell/cell we're currently in
         self.y = y
         self.area = area # The grid where the firefighter lives
@@ -158,7 +162,7 @@ class FireFighter:
                     reward_row.append(grid[(x,y)].fire_inten)
                 # else it depends of proximity to a the most intense fire divided by how far it is
                 else:
-                    reward_row.append(0.)
+                    #reward_row.append(0.)
                     max_neighbor = 0
                     times = 0.
                     while max_neighbor == 0 and times < L:
@@ -166,8 +170,14 @@ class FireFighter:
                         for dx,dy in self.actList:
                             if (x+dx*times,y+dy*times) in grid:
                                 max_neighbor = max(max_neighbor, grid[(x+dx*times,y+dy*times)].fire_inten)
-                    reward_row.append(max_neighbor/times) ## need to discount somehow -- picked 1/2 arbitrarily -- removed
+                    reward_row.append(max_neighbor/times/2) 
             reward_grid.append(reward_row)
+
+
+       # print "actual grid", grid
+        print "rewards"
+        for i in reward_grid:
+            print i
 
         return reward_grid
     
