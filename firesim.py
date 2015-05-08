@@ -157,14 +157,14 @@ class FireFighter:
                 # else it depends of proximity to a the most intense fire divided by how far it is
                 else:
                     reward_row.append(0.)
-                    # max_neighbor = 0
-                    # times = 0.
-                    # while max_neighbor == 0 and times < L:
-                    #     times +=1.
-                    #     for dx,dy in self.actList:
-                    #         if (x+dx*times,y+dy*times) in grid:
-                    #             max_neighbor = max(max_neighbor, grid[(x+dx*times,y+dy*times)].fire_inten)
-                    # reward_row.append(max_neighbor/times) ## need to discount somehow -- picked 1/2 arbitrarily -- removed
+                    max_neighbor = 0
+                    times = 0.
+                    while max_neighbor == 0 and times < L:
+                        times +=1.
+                        for dx,dy in self.actList:
+                            if (x+dx*times,y+dy*times) in grid:
+                                max_neighbor = max(max_neighbor, grid[(x+dx*times,y+dy*times)].fire_inten)
+                    reward_row.append(max_neighbor/times) ## need to discount somehow -- picked 1/2 arbitrarily -- removed
             reward_grid.append(reward_row)
 
         return reward_grid
@@ -446,8 +446,7 @@ class AreaSimulation:
                     if fire[0] + dx >= 0 and fire[0] + dx < self.L \
                        and fire[1] + dy >= 0 and fire[1] + dy < self.L:
                             # and it's not already in our list
-                            if (fire[0] + dx,fire[1] + dy) not in ff_placement_poss \
-                                and (fire[0] + dx,fire[1] + dy) not in fires:
+                            if (fire[0] + dx,fire[1] + dy) not in ff_placement_poss:
                                 ff_placement_poss.append((fire[0] + dx,fire[1] + dy))
                                 
         best_placement = None

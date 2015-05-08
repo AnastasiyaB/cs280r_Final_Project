@@ -114,7 +114,7 @@ def generateOddFire(center, radius, minInten = 0.1):
 ################################################################
 # BUILD FIRES
 
-testSize = 30
+testSize = 10
 totalNumFFs = 8
 fires = []
 
@@ -249,13 +249,13 @@ strats2 = ["random", "greedy", "optimal", "teamOptimal"]
 # print "###"
 for name, center, radius, cells in fires:
 	for configStyle in range(2): # 0 - point, 1 - surround, 2 - optimal
-		for strat in strats:
+		for strat in strats2:
 			trials = 10
 			stepsToExtinguish = []
 
 			# Initialize figure
 			fig = plt.figure(figIdx)
-			fig.suptitle(styles[configStyle] + name + " (" + strat+ ")")
+			fig.suptitle(name)
 			plt.xlabel('Iterations')
 			plt.ylabel('Turns to Extinguish')
 			for t in range(trials):
@@ -297,6 +297,7 @@ for name, center, radius, cells in fires:
 
 
 			print "Done. Plotting", styles[configStyle], name, strat
-			plt.plot(stepsToExtinguish)
-			fig.savefig(styles[configStyle] + name + strat + '.jpg')
-			figIdx += 1
+			plt.plot(stepsToExtinguish, label = styles[configStyle] + " (" + strat + ")")
+	plt.legend()
+	fig.savefig(name + '.jpg')
+	figIdx += 1
