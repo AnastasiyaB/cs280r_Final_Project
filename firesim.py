@@ -179,9 +179,9 @@ class FireFighter:
 
 
        # print "actual grid", grid
-        print "rewards"
-        for i in reward_grid:
-            print i
+        # print "rewards"
+        # for i in reward_grid:
+        #     print i
 
         return reward_grid
     
@@ -493,7 +493,7 @@ class AreaSimulation:
 
 def main(argv):
     # assumes all the inputs are well defined
-    area, iters, fire_coords, fire_inten, ff_coords = argv
+    area, iters, freq, fire_coords, fire_inten, ff_coords = argv
 
     # initialize the simulation
     sim = AreaSimulation(int(area))
@@ -517,10 +517,12 @@ def main(argv):
         sim.fight_fire(ff)
 
     for i in range(int(iters)):
-        print "iteration",i
-        sim.gprint()
+        if i%int(freq) == 0:
+            print "iteration",i
+            sim.gprint()
+            print 
         sim.gnew()
-        print 
+       
    
     # you could also find best config
     # sim.best_ff_config(2)
