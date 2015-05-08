@@ -1,6 +1,8 @@
 import random
 from utils import *
 import itertools
+import sys
+import ast
 
 ## class representation for each cell
 class Cell:
@@ -447,8 +449,8 @@ class AreaSimulation:
                     if fire[0] + dx >= 0 and fire[0] + dx < self.L \
                        and fire[1] + dy >= 0 and fire[1] + dy < self.L:
                             # and it's not already in our list
-                            if (fire[0] + dx,fire[1] + dy) not in ff_placement_poss \
-                                and (fire[0] + dx,fire[1] + dy) not in fires:
+                            if (fire[0] + dx,fire[1] + dy) not in ff_placement_poss :
+                              #  and (fire[0] + dx,fire[1] + dy) not in fires:
                                 ff_placement_poss.append((fire[0] + dx,fire[1] + dy))
                                 
         best_placement = None
@@ -476,26 +478,40 @@ class AreaSimulation:
         return best_placement
        
 
-        
-sim = AreaSimulation(3)
-sim.initialize()
+def main(argv):
+    # assumes all the inputs are well defined
+    area, iters, fire_coords, fire_inten, ff_coords = argv
 
-## start a fire
-sim.grid[(2,2)].fire_inten = .5
-sim.grid[(2,1)].fire_inten = .6
-sim.num_fires = 2
+    # initialize the simulation
+    sim = AreaSimulation(int(area))
+    sim.initialize()
 
-sim.best_ff_config(2)
+    # start the fire
+    fire_coords = ast.literal_eval(fire_coords)
+   
+    fire_inten = ast.literal_eval(fire_inten)
+
+    ff_coords =  ast.literal_eval(ff_coords)
+
+    
+    for i in range(len(fire_inten)):
+        sim.grid[(int(fire_coords[i*2]), int(fire_coords[i*2+1]))].fire_inten = float(fire_inten[i])
+    
+    sim.num_fires = len(fire_inten)
+
+    for i in range(len(ff_coords)/2):
+        ff = FireFighter(int(ff_coords[i*2]), int(ff_coords[i*2+1]),sim)
+        sim.fight_fire(ff)
+
+    for i in range(int(iters)):
+        print "iteration",i
+        sim.gprint()
+        sim.gnew()
+        print 
+   
+    # you could also find best config
+    # sim.best_ff_config(2)
 
 
-# iters = 10
-# for i in range(iters):
-#     print "iteration",i
-#     if i == 0:
-#         # introduce some firefighter
-#         ff1 = FireFighter(2,2,sim)
-#         sim.fight_fire(ff1)
-#     sim.gprint()
-#     sim.gnew()
-#     print 
-
+if __name__ == '__main__':
+    main(sys.argv[1:])
