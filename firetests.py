@@ -223,6 +223,7 @@ for name, center, radius, cells in fires:
 				for itr in range(iters):
 					sim.gnew()
 					steps += 1
+					print sim.num_fires
 					if sim.num_fires == 0:
 						break
 				stepsToExtinguish.append(steps)
