@@ -155,14 +155,7 @@ class FireFighter:
             reward_row = []
             for x in range(L):
                 #if fire intensity > .8 reward for going there is 0
-                # if grid[(x,y)].fire_inten > .8:
-                #     reward_row.append(0.)
-                # else if fire intensity between 0 and .8 reward for going there is fire.inten itself
-                if grid[(x,y)].fire_inten > 0: # and grid[(x,y)].fire_inten <= .8
-                    reward_row.append(grid[(x,y)].fire_inten)
-                # else it depends of proximity to a the most intense fire divided by how far it is
-                else:
-                    #reward_row.append(0.)
+                if grid[(x,y)].fire_inten > 0:
                     max_neighbor = 0
                     times = 0.
                     while max_neighbor == 0 and times < L:
@@ -170,7 +163,18 @@ class FireFighter:
                         for dx,dy in self.actList:
                             if (x+dx*times,y+dy*times) in grid:
                                 max_neighbor = max(max_neighbor, grid[(x+dx*times,y+dy*times)].fire_inten)
-                    reward_row.append(max_neighbor/times/2) 
+
+                    reward_row.append(grid[(x,y)].fire_inten + max_neighbor/times/2)
+                # else it depends of proximity to a the most intense fire divided by how far it is
+                else:
+                    max_neighbor = 0
+                    times = 0.
+                    while max_neighbor == 0 and times < L:
+                        times +=1.
+                        for dx,dy in self.actList:
+                            if (x+dx*times,y+dy*times) in grid:
+                                max_neighbor = max(max_neighbor, grid[(x+dx*times,y+dy*times)].fire_inten)
+                    reward_row.append(max_neighbor/times/5) 
             reward_grid.append(reward_row)
 
 
