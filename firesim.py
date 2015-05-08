@@ -175,11 +175,23 @@ class FireFighter:
 
 
        # print "actual grid", grid
-        print "rewards"
-        for i in reward_grid:
-            print i
+        # print "rewards"
+        # for i in reward_grid:
+        #     print i
 
         return reward_grid
+
+    def findOpenActions(self, grid):
+        newActList = []
+        for dx, dy in self.actList:
+            fft = grid[(self.x + dx, self.y + dy)].firefighter
+            fft2 = self.area.firefighters[self.x + dx][self.y + dy]
+            fft3 = self.area.grid[(self.x + dx, self.y + dy)].firefighter
+            if (not fft) and (not fft2) and (not fft3):
+                newActList.append((dx, dy))
+        if newActList == []:
+            newActList = [(0, 0)]
+        return newActList
     
     # Random
     def bestActionRandom(self, grid):
@@ -236,7 +248,7 @@ class FireFighter:
     def bestActionSingleMDP(self, newgrid):
         reward_grid = self.calculate_rewards(self.area.grid)
         #print "reward grid", reward_grid
-        my_grid = GridMDP(reward_grid, self.actList)
+        my_grid = GridMDP(reward_grid, self.findOpenActions(newgrid))
         values = value_iteration(my_grid)
         best_pol = best_policy(my_grid,values)
         return best_pol[(self.x,self.y)]
@@ -245,7 +257,7 @@ class FireFighter:
     def bestActionSeqMDP(self, newgrid):
         reward_grid = self.calculate_rewards(newgrid)
         #print "reward grid", reward_grid
-        my_grid = GridMDP(reward_grid, self.actList)
+        my_grid = GridMDP(reward_grid, self.findOpenActions(newgrid))
         values = value_iteration(my_grid)
         best_pol = best_policy(my_grid,values)
         return best_pol[(self.x,self.y)]

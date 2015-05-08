@@ -137,7 +137,7 @@ class FireApp(App):
             totalNumFFs = 8
             fires = []
             ## Small
-            center = (15, 15)
+            center = (5, 5)
             smallRadius = 1
             smallFireR = firetests.generateRoundFire(center, smallRadius)
             name, center, radius, cells = ("Small Round Fire", center, smallRadius, smallFireR)
@@ -146,9 +146,9 @@ class FireApp(App):
                 sim.grid[(x, y)].fire_inten = inten
                 c += 1
             sim.num_fires = c
-            ff_config = sim.best_ff_config(totalNumFFs)
+            ff_config = firetests.generateSurroundFFs(center, radius, numFFs = totalNumFFs)
             for ff in ff_config:
-                ff = firesim.FireFighter(ff[0], ff[1], sim, style = 'greedy', efficacy = 1)
+                ff = firesim.FireFighter(ff[0], ff[1], sim, style = 'teamOptimal', efficacy = 1)
                 sim.fight_fire(ff)
             
         for i in range(self.iters):
