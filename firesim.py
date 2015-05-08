@@ -53,6 +53,8 @@ class MDP:
             if state[0] + dx >= 0 and state[0] + dx < self.L \
                and state[1] + dy >= 0 and state[1] + dy < self.L:
                     possible_actions.append((dx,dy))
+        if not possible_actions:
+            return [(0, 0)]
         return possible_actions
         
 
@@ -188,9 +190,12 @@ class FireFighter:
     def findOpenActions(self, grid):
         newActList = []
         for dx, dy in self.actList:
-            fft = grid[(self.x + dx, self.y + dy)].firefighter
-            fft2 = self.area.firefighters[self.x + dx][self.y + dy]
-            fft3 = self.area.grid[(self.x + dx, self.y + dy)].firefighter
+            fft, fft2, fft3 = True, True, True
+            if (self.x + dx, self.y + dy) in grid:
+                fft = grid[(self.x + dx, self.y + dy)].firefighter
+            if (self.x + dx, self.y + dy) in self.area.grid:
+                fft2 = self.area.firefighters[self.x + dx][self.y + dy]
+                fft3 = self.area.grid[(self.x + dx, self.y + dy)].firefighter
             if (not fft) and (not fft2) and (not fft3):
                 newActList.append((dx, dy))
         if newActList == []:
