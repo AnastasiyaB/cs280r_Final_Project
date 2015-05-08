@@ -60,7 +60,7 @@ class GridMDP(MDP):
     (unreachable state).  Also, you should specify the terminal states.
     An action is an (x, y) unit vector; e.g. (1, 0) means move east."""
     def __init__(self, grid, actions, init=(0, 0), gamma=.9): # eliminated terminals
-        grid.reverse() ## because we want row 0 on bottom, not on top
+        #grid.reverse() ## because we want row 0 on bottom, not on top
         L = len(grid)
         MDP.__init__(self, init, L, actlist=actions, gamma=gamma)
         update(self, grid=grid, rows=len(grid), cols=len(grid[0]))
@@ -71,8 +71,7 @@ class GridMDP(MDP):
                     self.states.add((x, y))
 
     # think more about what our transition model here is
-    def T(self, state, action):
-       
+    def T(self, state, action):       
         if action == None:
             return [(0.0, state)]
         else:
@@ -131,15 +130,17 @@ def policy_evaluation(pi, U, mdp, k=20):
   
 ## class representation for each firefighter
 class FireFighter:
-    def __init__(self, x, y, area, efficacy = 1):
+    def __init__(self, x, y, area, style = "random", efficacy = 1):
         self.x = x # The starting cell/cell we're currently in
         self.y = y
         self.area = area # The grid where the firefighter lives
         self.path = [] # The path we've traverse so far
         self.efficacy = efficacy # Perhaps make this model vary on fighter skill level
+        self.style = style # random, greedy, optimal, teamOptimal
         self.actList = [(-1,-1), (-1,0), (-1,1), (0,-1), 
                    (0, 1), (1,-1),  (1,0),  (1,1)]
                  
+    # FIX THIS!!
     def calculate_rewards(self,grid):
         # TODO: take into account safety more
         L = int(math.sqrt(len(grid)))
@@ -148,60 +149,109 @@ class FireFighter:
             reward_row = []
             for x in range(L):
                 #if fire intensity > .8 reward for going there is 0
-                if grid[(x,y)].fire_inten > .8:
-                    reward_row.append(0.)
+                # if grid[(x,y)].fire_inten > .8:
+                #     reward_row.append(0.)
                 # else if fire intensity between 0 and .8 reward for going there is fire.inten itself
-                elif grid[(x,y)].fire_inten > 0 and grid[(x,y)].fire_inten <= .8:
+                if grid[(x,y)].fire_inten > 0: # and grid[(x,y)].fire_inten <= .8
                     reward_row.append(grid[(x,y)].fire_inten)
                 # else it depends of proximity to a the most intense fire divided by how far it is
                 else:
-                    max_neighbor = 0
-                    times = 0.
-                    while max_neighbor == 0 and times < L:
-                        times +=1.
-                        for dx,dy in self.actList:
-                            if (x+dx*times,y+dy*times) in grid:
-                                max_neighbor = max(max_neighbor, grid[(x+dx*times,y+dy*times)].fire_inten)
-                    reward_row.append(max_neighbor/times/2) ## need to discount somehow -- picked 1/2 arbitrarily
+                    reward_row.append(0.)
+                    # max_neighbor = 0
+                    # times = 0.
+                    # while max_neighbor == 0 and times < L:
+                    #     times +=1.
+                    #     for dx,dy in self.actList:
+                    #         if (x+dx*times,y+dy*times) in grid:
+                    #             max_neighbor = max(max_neighbor, grid[(x+dx*times,y+dy*times)].fire_inten)
+                    # reward_row.append(max_neighbor/times) ## need to discount somehow -- picked 1/2 arbitrarily -- removed
             reward_grid.append(reward_row)
+
         return reward_grid
-                       
-    # use value/policy interation to figure out best action   
-    def bestAction2(self, newgrid):
-        reward_grid = self.calculate_rewards(newgrid)
-        #print "reward grid", reward_grid
-        my_grid = GridMDP(reward_grid, self.actList)
-        values = value_iteration(my_grid)
-        best_pol = best_policy(my_grid,values)
-        return best_pol[(self.x,self.y)]
     
-    def bestAction(self, grid):
-        # Greedy
-        max_inten = 0.
-        max_move = None
-        for dx, dy in self.actList:
-            if self.x + dx >= 0 and self.x + dx < self.area.L \
-               and self.y + dy >= 0 and self.y + dy < self.area.L:
-                it = self.area.grid[(self.x + dx, self.y + dy)].fire_inten
-                fft = grid[(self.x + dx, self.y + dy)].firefighter
-                if it > max_inten and not fft:
-                    max_inten = it
-                    max_move = (dx, dy)
-        act = max_move
+    # Random
+    def bestActionRandom(self, grid):
+        act = None
         while not act:
             # Random
             act = random.choice(self.actList)
             dx, dy = act
             if self.x + dx >= 0 and self.x + dx < self.area.L \
-               and self.y + dy >= 0 and self.y + dy < self.area.L \
-               and not grid[(self.x + dx, self.y + dy)].firefighter:
-                break
+               and self.y + dy >= 0 and self.y + dy < self.area.L:
+                fft = grid[(self.x + dx, self.y + dy)].firefighter
+                fft2 = self.area.firefighters[self.x + dx][self.y + dy]
+                if (not fft) and (not fft2):
+                    break
+                else:
+                    act = None
             else:
                 act = None
         self.path.append(act)
         self.x += act[0]
         self.y += act[1]
         return act
+
+    # Single agent Greedy
+    def bestActionGreedy(self, grid):
+        # Greedy
+        max_inten = 0.
+        max_move = None
+        mult = 1
+        while not max_move and mult < self.area.L:
+            for dx, dy in self.actList:
+                dx = mult*dx
+                dy = mult*dy
+                if self.x + dx >= 0 and self.x + dx < self.area.L \
+                   and self.y + dy >= 0 and self.y + dy < self.area.L:
+                    it = self.area.grid[(self.x + dx, self.y + dy)].fire_inten
+                    fft = grid[(self.x + dx, self.y + dy)].firefighter
+                    fft2 = self.area.firefighters[self.x + dx][self.y + dy]
+                    fft3 = self.area.grid[(self.x + dx, self.y + dy)].firefighter
+                    if it > max_inten and (not fft) and (not fft2) and (not fft3):
+                        max_inten = it
+                        max_move = (dx/mult, dy/mult)
+            mult += 1
+        if not max_move:
+            print "No more fire left"
+            max_move = self.bestActionRandom(grid)
+        act = max_move
+        self.path.append(act)
+        self.x += act[0]
+        self.y += act[1]
+        return act
+
+    # Single Agent Optimal MDP via VI/PI
+    def bestActionSingleMDP(self, newgrid):
+        reward_grid = self.calculate_rewards(self.area.grid)
+        #print "reward grid", reward_grid
+        my_grid = GridMDP(reward_grid, self.actList)
+        values = value_iteration(my_grid)
+        best_pol = best_policy(my_grid,values)
+        return best_pol[(self.x,self.y)]
+
+    # Sequential Optimal MDP
+    def bestActionSeqMDP(self, newgrid):
+        reward_grid = self.calculate_rewards(newgrid)
+        #print "reward grid", reward_grid
+        my_grid = GridMDP(reward_grid, self.actList)
+        values = value_iteration(my_grid)
+        best_pol = best_policy(my_grid,values)
+        return best_pol[(self.x,self.y)]
+
+    # Return best action based on type
+    def bestAction(self, newgrid):
+        if self.style == "random":
+            return self.bestActionRandom(newgrid)
+
+        if self.style == "greedy":
+            return self.bestActionGreedy(newgrid)
+
+        if self.style == "optimal":
+            return self.bestActionSingleMDP(newgrid)
+
+        if self.style == "teamOptimal":
+            return self.bestActionSeqMDP(newgrid)
+            
        
 class AreaSimulation:
     def __init__(self, L):
@@ -214,7 +264,7 @@ class AreaSimulation:
         self.time = 0
         self.firefighters = [[False for i in range(L)] for j in range(L)]
         self.num_fires = 0
-        
+        self.burning = 0     
         
     def fight_fire(self, ff_info):
         self.grid[(ff_info.x, ff_info.y)].firefighter = True
@@ -263,7 +313,7 @@ class AreaSimulation:
         for x in range(self.L):
             for y in range(self.L): 
                 if self.firefighters[x][y]: ## there is a firefighter in that cell
-                    print "firefighter in this cell", x,y
+                    #print "firefighter in this cell", x,y
                     new_ff_coord.append((x, y))
                     self.num_fires-=1
                     
@@ -287,11 +337,11 @@ class AreaSimulation:
                     # if we multiply by 1 means just stays the same
                     wind_inf = 1 if self.wind_influence(x,y) == 0 else self.wind_influence(x,y)*10
                                      
-                    ### rewise this fire intensity func
+                    ### revise this fire intensity func
                     new_fire_inten = min(self.grid[(x,y)].fire_inten * (self.grid[(x,y)].veg_inten) * wind_inf * 3, 1) 
-                    if new_fire_inten == 0:
-                       
+                    if new_fire_inten == 0:                       
                         self.num_fires-=1
+
                     newgrid[(x,y)] = Cell(
                         x= x,
                         y= y,
@@ -333,28 +383,29 @@ class AreaSimulation:
                         ff_info = None,
                         exting = self.grid[(x,y)].exting
                    )
+                else:
+                    print "Negative fire intensity"
                     
-
         for x, y in new_ff_coord:
             ## put the firefighter in the next cell
             # should we pass grid or newgrid here?
-            dx, dy = self.grid[(x,y)].ff_info.bestAction2(newgrid) ## somewhere here need to check if it's a legal action
+            dx, dy = self.grid[(x,y)].ff_info.bestAction(newgrid) ## somewhere here need to check if it's a legal action
             newgrid[(x+dx, y+dy)].firefighter = True
             newgrid[(x+dx, y+dy)].ff_info = self.grid[(x,y)].ff_info
             ## will need to change actual coordinates here
             newgrid[(x+dx, y+dy)].ff_info.x = x+dx
-            newgrid[(x+dx, y+dy)].ff_info.y = y+dy
-                
+            newgrid[(x+dx, y+dy)].ff_info.y = y+dy                
             
             ## I don't see why we need this but ok
             self.firefighters[x+dx][y+dy] = True
             self.firefighters[x][y] = False
+
         self.grid = newgrid
         return newgrid
 
     ## printing function
     def gprint(self):
-        txt = '\n'.join(' * '.join(str(self.grid[(x,y)].fire_inten) for x in range(self.L))
+        txt = '\n'.join('|'.join(str(self.grid[(x,y)].fire_inten) for x in range(self.L))
                          for y in range(self.L))
         print(txt)
 
@@ -395,6 +446,8 @@ class AreaSimulation:
             for i in range(iters):
                 sim.gnew()
                 if sim.num_fires == 0: # all have been extinguished
+                    #print "DONE"
+                    #print best_placement
                     if i < best_time: # log the best time
                         best_time = i
                         best_placement = placement

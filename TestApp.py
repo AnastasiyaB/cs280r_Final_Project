@@ -15,6 +15,7 @@ from kivy.clock import Clock
 from kivy.lang import Builder
 
 import firesim
+import firetests
 
 class FireUI(GridLayout):
     pass
@@ -121,14 +122,39 @@ class FireApp(App):
         else:
             ### now I'm going to "start" a fire in the upper left corner
             ## start a fire
-            print "no inputs"
-            sim.grid[(3,2)].fire_inten = .5
-            sim.grid[(2,1)].fire_inten = .6
-            sim.num_fires = 2
-            sim.best_ff_config(3)
+            # print "no inputs"
+            # sim.grid[(3,2)].fire_inten = .5
+            # sim.grid[(2,1)].fire_inten = .6
+            # sim.num_fires = 2
+            # best_config = sim.best_ff_config(3)
+            # print best_config
+            # for ff in best_config:
+            #     print ff
+            #     ff = firesim.FireFighter(ff[0], ff[1], sim, efficacy = 1)
+            #     sim.fight_fire(ff)
+            testSize = 30
+            totalNumFFs = 8
+            fires = []
+            ## Small
+            center = (15, 15)
+            smallRadius = 1
+            smallFireR = firetests.generateRoundFire(center, smallRadius)
+            name, center, radius, cells = ("Small Round Fire", center, smallRadius, smallFireR)
+            c = 0
+            for x, y, inten in cells:
+                sim.grid[(x, y)].fire_inten = inten
+                c += 1
+            sim.num_fires = c
+            ff_config = firetests.generatePointFFs(center, radius, point = 'top', numFFs = totalNumFFs)
+            for ff in ff_config:
+                ff = firesim.FireFighter(ff[0], ff[1], sim, style = 'greedy', efficacy = 1)
+                sim.fight_fire(ff)
             
         for i in range(self.iters):
             self.vals.append(sim.grid)
+            print sim.num_fires
+            if sim.num_fires == 0:
+                print "victory"
             sim.gnew()
 
         if self.model:
@@ -159,14 +185,14 @@ class FireApp(App):
         
         root = FireUI(cols=2, size=(800, 1000))
         
-        self.model = FireModel(cols = self.cols, size_hint=(.7, .7))
+        self.model = FireModel(cols = self.cols, size_hint=(.7, .8))
         self.updateCells()
 
         self.slider = Slider(max = self.iters-1, step = 1, size_hint=(1, .15))
         self.slider.bind(value = self.OnSliderValueChange)
 
         panel = InputPanel(size_hint=(.27, .8))
-        deflt = {"Fire": [(1, 2, .55), (1, 1, .6), (2, 1, .31)], "FF": [(3, 2, 0), (4, 5, 0), (5, 1, 0)]}
+        deflt = {"Fire": [(1, 2, .55), (1, 1, .6), (2, 1, .31)], "FF": [(3, 2, 1), (4, 5, 1), (5, 1, 1)]}
         inputs = {'Fire': [], 'FF': []}
         for t in ['Fire', 'FF']:
             for i in range(1, 4):
