@@ -212,7 +212,7 @@ class FireFighter:
                         max_move = (dx/mult, dy/mult)
             mult += 1
         if not max_move:
-            print "No more fire left"
+            #print "No more fire left"
             max_move = self.bestActionRandom(grid)
         act = max_move
         self.path.append(act)
@@ -263,8 +263,7 @@ class AreaSimulation:
         self.L = L
         self.time = 0
         self.firefighters = [[False for i in range(L)] for j in range(L)]
-        self.num_fires = 0
-        self.burning = 0  
+        self.num_fires = 0 
         
     def fight_fire(self, ff_info):
         self.grid[(ff_info.x, ff_info.y)].firefighter = True
