@@ -264,7 +264,7 @@ class AreaSimulation:
         self.time = 0
         self.firefighters = [[False for i in range(L)] for j in range(L)]
         self.num_fires = 0
-        self.burning = 0     
+        self.burning = 0  
         
     def fight_fire(self, ff_info):
         self.grid[(ff_info.x, ff_info.y)].firefighter = True
@@ -312,10 +312,17 @@ class AreaSimulation:
         # iterate through all the cells
         for x in range(self.L):
             for y in range(self.L): 
+                
+                print "current number of fires", self.num_fires
+               
                 if self.firefighters[x][y]: ## there is a firefighter in that cell
                     #print "firefighter in this cell", x,y
+                    print "there is a firefighter in this cell",x,y
                     new_ff_coord.append((x, y))
+                    print "num fires before ff", self.num_fires
                     self.num_fires-=1
+                    print "num fires after", self.num_fires
+
                     
                     ## extinguish fire in this cell
                     newgrid[(x,y)] = Cell(
@@ -334,13 +341,17 @@ class AreaSimulation:
                    )
 
                 elif self.grid[(x,y)].fire_inten > 0: # cell is burning
+                    print "cell is burning",x,y
                     # if we multiply by 1 means just stays the same
                     wind_inf = 1 if self.wind_influence(x,y) == 0 else self.wind_influence(x,y)*10
                                      
                     ### revise this fire intensity func
+                    print "num fires beofre", self.num_fires
                     new_fire_inten = min(self.grid[(x,y)].fire_inten * (self.grid[(x,y)].veg_inten) * wind_inf * 3, 1) 
                     if new_fire_inten == 0:                       
                         self.num_fires-=1
+
+                    print "num fires after", self.num_fires
 
                     newgrid[(x,y)] = Cell(
                         x= x,
@@ -357,6 +368,7 @@ class AreaSimulation:
                         exting = self.grid[(x,y)].exting
                    )
                 elif self.grid[(x,y)].fire_inten == 0: # cell is not burning but can catch (assuming cells don't randomly catch fire)
+                    print "cell can catch",x,y
                     ## need to take into account the conditions of surrounding cells
                     wind_inf = 1 if self.wind_influence(x,y) == 0 else self.wind_influence(x,y)*10
                     
@@ -365,9 +377,14 @@ class AreaSimulation:
                         if (x+dx,y+dy) in self.grid:
                             total_inten += self.grid[(x+dx,y+dy)].fire_inten # will somehow need to handle the surrounding fire  
                     new_fire_inten = (total_inten * self.grid[(x,y)].veg_inten)/8. * wind_inf
+                    
+                    new_fire_inten = round(new_fire_inten,2)
+
+                    print "num of fires before", self.num_fires
                     if new_fire_inten > 0:
                         if not self.grid[(x,y)].exting:
                             self.num_fires+=1
+                    print "num of fires after", self.num_fires
                             
                     #if not self.grid[(x,y)].veg_inten and new_fire_inten: 
                     newgrid[(x,y)] = Cell(
@@ -378,7 +395,7 @@ class AreaSimulation:
                         #veg_vol = max(0.,self.grid[(x,y)].veg_vol - new_fire_inten),
                         wind_direc= self.grid[(x,y)].wind_direc,
                         wind_inten= self.grid[(x,y)].wind_inten,
-                        fire_inten= round(new_fire_inten,2),
+                        fire_inten= new_fire_inten,
                         firefighter = False,
                         ff_info = None,
                         exting = self.grid[(x,y)].exting
@@ -455,10 +472,22 @@ class AreaSimulation:
        
 
         
-sim = AreaSimulation(4)
+sim = AreaSimulation(3)
 sim.initialize()
 
 ## start a fire
-sim.grid[(3,2)].fire_inten = .5
+sim.grid[(2,2)].fire_inten = .5
 sim.grid[(2,1)].fire_inten = .6
 sim.num_fires = 2
+
+iters = 5
+for i in range(iters):
+    print "iteration",i
+    if i == 0:
+        # introduce some firefighter
+        ff1 = FireFighter(2,2,sim)
+        sim.fight_fire(ff1)
+    sim.gprint()
+    sim.gnew()
+    print 
+
