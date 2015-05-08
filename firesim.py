@@ -132,7 +132,7 @@ def policy_evaluation(pi, U, mdp, k=20):
   
 ## class representation for each firefighter
 class FireFighter:
-    def __init__(self, x, y, area, style = "random", efficacy = 1):
+    def __init__(self, x, y, area, style = "optimal", efficacy = 1):
         self.x = x # The starting cell/cell we're currently in
         self.y = y
         self.area = area # The grid where the firefighter lives
