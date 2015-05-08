@@ -320,7 +320,9 @@ class AreaSimulation:
                     print "there is a firefighter in this cell",x,y
                     new_ff_coord.append((x, y))
                     print "num fires before ff", self.num_fires
-                    self.num_fires-=1
+                    if self.num_fires > 0:
+                        # otherwise there's nothing to extinguish
+                        self.num_fires-=1
                     print "num fires after", self.num_fires
 
                     
@@ -468,6 +470,9 @@ class AreaSimulation:
                     if i < best_time: # log the best time
                         best_time = i
                         best_placement = placement
+                        break
+        print "best time", best_time
+        print "best placement", best_placement
         return best_placement
        
 
@@ -480,14 +485,17 @@ sim.grid[(2,2)].fire_inten = .5
 sim.grid[(2,1)].fire_inten = .6
 sim.num_fires = 2
 
-iters = 5
-for i in range(iters):
-    print "iteration",i
-    if i == 0:
-        # introduce some firefighter
-        ff1 = FireFighter(2,2,sim)
-        sim.fight_fire(ff1)
-    sim.gprint()
-    sim.gnew()
-    print 
+sim.best_ff_config(2)
+
+
+# iters = 10
+# for i in range(iters):
+#     print "iteration",i
+#     if i == 0:
+#         # introduce some firefighter
+#         ff1 = FireFighter(2,2,sim)
+#         sim.fight_fire(ff1)
+#     sim.gprint()
+#     sim.gnew()
+#     print 
 
