@@ -145,7 +145,7 @@ class FireApp(App):
                 sim.grid[(x, y)].fire_inten = inten
                 c += 1
             sim.num_fires = c
-            ff_config = firetests.generatePointFFs(center, radius, point = 'top', numFFs = totalNumFFs)
+            ff_config = firetests.generateSurroundFFs(center, radius, numFFs = totalNumFFs)
             for ff in ff_config:
                 ff = firesim.FireFighter(ff[0], ff[1], sim, style = 'greedy', efficacy = 1)
                 sim.fight_fire(ff)

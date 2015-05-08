@@ -114,7 +114,7 @@ def generateOddFire(center, radius, minInten = 0.1):
 ################################################################
 # BUILD FIRES
 
-testSize = 30
+testSize = 10
 totalNumFFs = 8
 fires = []
 
@@ -174,34 +174,100 @@ fires.append(("Large Odd Fire", center, largeRadius, largeFireO))
 
 ###################################################################
 ## RUN TESTS
+# figIdx = 1
+# styles = ["Point Configuration - ", "Surround Configuration - ", "Optimal Configuration - "]
+# strats = ["random", "greedy"]
+# strats2 = ["random", "greedy", "optimal", "teamOptimal"]
+# for name, center, radius, cells in fires:
+# 	for configStyle in range(2): # 0 - point, 1 - surround, 2 - optimal
+# 		for strat in strats:
+# 			trials = 10
+# 			stepsToExtinguish = []
+
+# 			# Initialize figure
+# 			fig = plt.figure(figIdx)
+# 			fig.suptitle(styles[configStyle] + name + " (" + strat+ ")")
+# 			plt.xlabel('Iterations')
+# 			plt.ylabel('Turns to Extinguish')
+
+# 			# Run through trials, save outputs, and plot		
+# 			for tri in range(trials):
+# 				# Init
+# 				sim = firesim.AreaSimulation(testSize)
+# 				sim.initialize()
+
+# 				# Light the fire and count the num fires lit
+# 				c = 0
+# 				for x, y, inten in cells:
+# 					sim.grid[(x, y)].fire_inten = inten
+# 					c += 1
+# 				# sim.num_fires = c
+
+# 				if configStyle == 0:
+# 					ff_config = generatePointFFs(center, radius, point = 'top', numFFs = totalNumFFs)
+
+# 				elif configStyle == 1:
+# 					ff_config = generateSurroundFFs(center, radius, numFFs = totalNumFFs)
+
+# 				else:
+# 					ff_config = sim.best_ff_config(totalNumFFs)
+
+# 				for ff in ff_config:
+# 					ff2 = firesim.FireFighter(ff[0], ff[1], sim, style = strat, efficacy = 1)
+# 			    	sim.fight_fire(ff2)
+
+# 				# sim.gprint()
+# 			    # Run simulation
+# 				steps = 0
+# 				iters = 50
+
+# 				for itr in range(iters):
+# 					sim.gnew()
+# 					steps += 1
+# 					print sim.num_fires
+# 					if sim.num_fires == 0:
+# 						break
+# 				stepsToExtinguish.append(steps)
+# 				print "Done Trial with", steps, "steps"
+# 				# sim.gprint()	    	
+
+# 			print "Done. Plotting", styles[configStyle], name, strat
+# 			plt.plot(stepsToExtinguish)
+# 			fig.savefig(styles[configStyle] + name + strat + '.jpg')
+# 			figIdx += 1
+
+
+
+
+# Init
 figIdx = 1
+name, center, radius, cells = ("Small Round Fire", center, smallRadius, smallFireR)
 styles = ["Point Configuration - ", "Surround Configuration - ", "Optimal Configuration - "]
 strats = ["random", "greedy"]
 strats2 = ["random", "greedy", "optimal", "teamOptimal"]
+# print name, center, radius, cells
+# print "###"
 for name, center, radius, cells in fires:
 	for configStyle in range(2): # 0 - point, 1 - surround, 2 - optimal
-		for strat in strats:
+		for strat in strats2:
 			trials = 10
 			stepsToExtinguish = []
 
 			# Initialize figure
 			fig = plt.figure(figIdx)
-			fig.suptitle(styles[configStyle] + name + " (" + strat+ ")")
+			fig.suptitle(name)
 			plt.xlabel('Iterations')
 			plt.ylabel('Turns to Extinguish')
-
-			# Run through trials, save outputs, and plot		
-			for tri in range(trials):
-				# Init
+			for t in range(trials):
 				sim = firesim.AreaSimulation(testSize)
 				sim.initialize()
-
+			
 				# Light the fire and count the num fires lit
 				c = 0
 				for x, y, inten in cells:
 					sim.grid[(x, y)].fire_inten = inten
 					c += 1
-				sim.num_fires = c
+				# sim.num_fires = c
 
 				if configStyle == 0:
 					ff_config = generatePointFFs(center, radius, point = 'top', numFFs = totalNumFFs)
@@ -214,23 +280,24 @@ for name, center, radius, cells in fires:
 
 				for ff in ff_config:
 					ff2 = firesim.FireFighter(ff[0], ff[1], sim, style = strat, efficacy = 1)
-			    	sim.fight_fire(ff2)
+					sim.fight_fire(ff2)
 
 				# sim.gprint()
-			    # Run simulation
+				# Run simulation
 				steps = 0
 				iters = 50
 				for itr in range(iters):
 					sim.gnew()
 					steps += 1
+					#print sim.num_fires
 					if sim.num_fires == 0:
 						break
 				stepsToExtinguish.append(steps)
 				print "Done Trial with", steps, "steps"
-				# sim.gprint()	    	
+
 
 			print "Done. Plotting", styles[configStyle], name, strat
-			plt.plot(stepsToExtinguish)
-			fig.savefig(styles[configStyle] + name + strat + '.jpg')
-			figIdx += 1
-
+			plt.plot(stepsToExtinguish, label = styles[configStyle] + " (" + strat + ")")
+	plt.legend()
+	fig.savefig(name + '.jpg')
+	figIdx += 1
